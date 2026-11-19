@@ -1,0 +1,74 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold text-dark mb-1">Modifier l'utilisateur #<%= userToEdit.id %></h2>
+    <p class="text-muted mb-0">Mettez à jour les informations de profil et autorisations.</p>
+  </div>
+  <div>
+    <a href="/users" hx-get="/users" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-arrow-left me-1"></i> Retour à la liste
+    </a>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <form action="/users/<%= userToEdit.id %>" method="POST" hx-post="/users/<%= userToEdit.id %>" hx-target="#main-content">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label for="username" class="form-label fw-semibold">Nom d'utilisateur</label>
+              <input type="text" class="form-control" id="username" name="username" value="<%= userToEdit.username %>" required minlength="3" maxlength="30">
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="email" class="form-label fw-semibold">Email</label>
+              <input type="email" class="form-control" id="email" name="email" value="<%= userToEdit.email %>" required>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="firstName" class="form-label fw-semibold">Prénom</label>
+              <input type="text" class="form-control" id="firstName" name="firstName" value="<%= userToEdit.firstName || '' %>">
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="lastName" class="form-label fw-semibold">Nom</label>
+              <input type="text" class="form-control" id="lastName" name="lastName" value="<%= userToEdit.lastName || '' %>">
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="phone" class="form-label fw-semibold">Téléphone</label>
+              <input type="tel" class="form-control" id="phone" name="phone" value="<%= userToEdit.phone || '' %>">
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="address" class="form-label fw-semibold">Adresse</label>
+              <input type="text" class="form-control" id="address" name="address" value="<%= userToEdit.address || '' %>">
+            </div>
+
+            <% if (locals.user && locals.user.role === 'admin') { %>
+              <div class="col-12 col-md-6">
+                <label for="role" class="form-label fw-semibold text-danger">Rôle (Admin uniquement)</label>
+                <select class="form-select border-danger" id="role" name="role">
+                  <option value="user" <%= userToEdit.role === 'user' ? 'selected' : '' %>>Utilisateur / Client (user)</option>
+                  <option value="manager" <%= userToEdit.role === 'manager' ? 'selected' : '' %>>Gestionnaire (manager)</option>
+                  <option value="admin" <%= userToEdit.role === 'admin' ? 'selected' : '' %>>Administrateur (admin)</option>
+                </select>
+                <div class="form-text small text-muted">Seul un administrateur système peut modifier le rôle d'un utilisateur.</div>
+              </div>
+            <% } %>
+          </div>
+
+          <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+            <a href="/users" hx-get="/users" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary">Annuler</a>
+            <button type="submit" class="btn btn-primary bg-bank-primary border-0">
+              <i class="fa-solid fa-save me-1"></i> Enregistrer les modifications
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

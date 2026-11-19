@@ -1,0 +1,75 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold text-dark mb-1">Comptes Bancaires</h2>
+    <p class="text-muted mb-0">Consultez l'ensemble des comptes et leur solde en temps réel.</p>
+  </div>
+  <div>
+    <a href="/accounts/create" hx-get="/accounts/create" hx-target="#main-content" hx-push-url="true" class="btn btn-primary bg-bank-primary border-0 btn-sm">
+      <i class="fa-solid fa-plus me-1"></i> Ouvrir un compte
+    </a>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle data-table w-100">
+        <thead class="table-light">
+          <tr>
+            <th>N° de Compte</th>
+            <th>Titulaire</th>
+            <th>Type</th>
+            <th>Solde</th>
+            <th>Intérêts Cumulés</th>
+            <th>Statut</th>
+            <th>Création</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% accounts.forEach(function(acc) { %>
+            <tr>
+              <td class="fw-bold">
+                <a href="/accounts/<%= acc.id %>" hx-get="/accounts/<%= acc.id %>" hx-target="#main-content" hx-push-url="true" class="text-decoration-none">
+                  <%= acc.accountNumber %>
+                </a>
+              </td>
+              <td>
+                <div class="fw-semibold"><%= acc.owner %></div>
+                <% if (acc.user) { %>
+                  <div class="small text-muted"><%= acc.user.email %></div>
+                <% } %>
+              </td>
+              <td>
+                <span class="badge <%= acc.accountType === 'savings' ? 'badge-savings' : 'badge-checking' %>">
+                  <%= acc.accountType === 'savings' ? 'Épargne' : 'Courant' %>
+                </span>
+              </td>
+              <td class="fw-bold fs-6"><%= Number(acc.balance).toFixed(2) %> €</td>
+              <td class="text-success"><%= Number(acc.accumulatedInterest).toFixed(2) %> €</td>
+              <td>
+                <span class="badge <%= acc.status === 'active' ? 'badge-active' : 'badge-frozen' %>">
+                  <%= acc.status === 'active' ? 'Actif' : (acc.status === 'frozen' ? 'Gelé' : 'Fermé') %>
+                </span>
+              </td>
+              <td class="small text-muted"><%= new Date(acc.createdAt).toLocaleDateString('fr-FR') %></td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a href="/accounts/<%= acc.id %>" hx-get="/accounts/<%= acc.id %>" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-primary" title="Détails">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                  <a href="/accounts/<%= acc.id %>/transactions/create" hx-get="/accounts/<%= acc.id %>/transactions/create" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-success" title="Nouvelle opération">
+                    <i class="fa-solid fa-arrow-down-up-across-line"></i>
+                  </a>
+                  <a href="/statements/<%= acc.id %>" hx-get="/statements/<%= acc.id %>" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary" title="Relevé">
+                    <i class="fa-solid fa-file-invoice"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="row justify-content-center align-items-center py-4">
+  <div class="col-12 col-md-10 col-lg-7 col-xl-6">
+    <div class="card shadow-lg border-0">
+      <div class="card-body p-4 p-md-5">
+        <div class="text-center mb-4">
+          <div class="display-5 text-bank-primary mb-2">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <h3 class="fw-bold text-dark">Ouvrir un compte B-Bank</h3>
+          <p class="text-muted small">Rejoignez notre réseau de micro-crédit et gestion bancaire</p>
+        </div>
+
+        <form action="/auth/register" method="POST" hx-post="/auth/register" hx-target="#main-content">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label for="firstName" class="form-label fw-semibold">Prénom</label>
+              <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Jean">
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="lastName" class="form-label fw-semibold">Nom</label>
+              <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Dupont">
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="username" class="form-label fw-semibold">Nom d'utilisateur <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="username" name="username" placeholder="jdupont" required minlength="3" maxlength="30">
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="email" class="form-label fw-semibold">Adresse Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="jean.dupont@email.com" required>
+            </div>
+
+            <div class="col-12">
+              <label for="password" class="form-label fw-semibold">Mot de passe <span class="text-danger">*</span></label>
+              <input type="password" class="form-control" id="password" name="password" required minlength="8" maxlength="50" placeholder="Minimum 8 caractères, 1 majuscule, 1 chiffre, 1 spécial">
+              <div class="form-text small">Doit contenir au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.</div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="phone" class="form-label fw-semibold">Téléphone</label>
+              <input type="tel" class="form-control" id="phone" name="phone" placeholder="+33 6 12 34 56 78">
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="address" class="form-label fw-semibold">Adresse postale</label>
+              <input type="text" class="form-control" id="address" name="address" placeholder="10 Rue de la Paix, Paris">
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold bg-bank-primary border-0 shadow-sm">
+              <i class="fa-solid fa-check me-2"></i> Créer mon compte
+            </button>
+          </div>
+        </form>
+
+        <div class="mt-4 pt-3 border-top text-center">
+          <p class="text-muted small mb-0">
+            Vous avez déjà un compte ? <a href="/auth/login" hx-get="/auth/login" hx-target="#main-content" hx-push-url="true" class="fw-semibold text-primary">Se connecter</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+<% if (typeof breadcrumbs !== 'undefined' && breadcrumbs && breadcrumbs.length > 0) { %>
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/dashboard" hx-get="/dashboard" hx-target="#main-content" hx-push-url="true"><i class="fa-solid fa-house"></i> Accueil</a></li>
+      <% breadcrumbs.forEach(function(crumb, index) { %>
+        <% if (index === breadcrumbs.length - 1) { %>
+          <li class="breadcrumb-item active" aria-current="page"><%= crumb.name %></li>
+        <% } else { %>
+          <li class="breadcrumb-item"><a href="<%= crumb.url %>" hx-get="<%= crumb.url %>" hx-target="#main-content" hx-push-url="true"><%= crumb.name %></a></li>
+        <% } %>
+      <% }); %>
+    </ol>
+  </nav>
+<% } %>

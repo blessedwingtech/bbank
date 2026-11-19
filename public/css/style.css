@@ -1,0 +1,123 @@
+:root {
+  --bbank-primary: #1e3a8a;
+  --bbank-primary-light: #3b82f6;
+  --bbank-secondary: #0f172a;
+  --bbank-accent: #10b981;
+  --bbank-gold: #f59e0b;
+  --bbank-danger: #ef4444;
+  --bbank-bg: #f8fafc;
+  --bbank-card-bg: #ffffff;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bbank-bg);
+  color: #334155;
+  min-height: 100vh;
+}
+
+.bg-bank-primary {
+  background-color: var(--bbank-primary) !important;
+}
+
+.text-bank-primary {
+  color: var(--bbank-primary) !important;
+}
+
+.sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background-color: #0f172a;
+  color: #e2e8f0;
+  transition: all 0.3s;
+}
+
+.sidebar .nav-link {
+  color: #94a3b8;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.sidebar .nav-link i {
+  width: 24px;
+  font-size: 1.1rem;
+  margin-right: 0.5rem;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+  color: #ffffff;
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+.sidebar .nav-link.active {
+  background-color: var(--bbank-primary-light);
+  color: #ffffff;
+}
+
+.main-content {
+  background-color: #f1f5f9;
+  min-height: 100vh;
+}
+
+.card {
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card {
+  border-left: 4px solid var(--bbank-primary-light);
+}
+
+.badge-checking {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.badge-savings {
+  background-color: #10b981;
+  color: white;
+}
+
+.badge-frozen {
+  background-color: #ef4444;
+  color: white;
+}
+
+.badge-active {
+  background-color: #10b981;
+  color: white;
+}
+
+.badge-pending {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.amount-positive {
+  color: #059669;
+  font-weight: 600;
+}
+
+.amount-negative {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* HTMX indicator */
+.htmx-indicator {
+  display: none;
+}
+.htmx-request .htmx-indicator {
+  display: inline-block;
+}
+.htmx-request.htmx-indicator {
+  display: inline-block;
+}

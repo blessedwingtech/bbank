@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  manager
+  user
+}
+
+enum AccountType {
+  checking
+  savings
+}
+
+enum AccountStatus {
+  active
+  frozen
+  closed
+}
+
+enum TransactionType {
+  deposit
+  withdrawal
+  interest
+}
+
+enum TransferType {
+  internal
+  external
+}
+
+enum TransferStatus {
+  pending
+  completed
+  failed
+  cancelled
+}
+
+enum FeeType {
+  withdrawal_fee
+  deposit_fee
+  transfer_fee
+  monthly_fee
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique @db.VarChar(30)
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255) // bcrypt hash — JAMAIS exposé
+  firstName String?  @db.VarChar(100)
+  lastName  String?  @db.VarChar(100)
+  phone     String?  @db.VarChar(20)
+  address   String?  @db.VarChar(255)
+  role      Role     @default(user)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts Account[]
+
+  @@map("users")
+}
+
+model Account {
+  id                  Int           @id @default(autoincrement())
+  accountNumber       String        @unique @db.VarChar(20) // Format: "BB-XXXXXXXX"
+  owner               String        @db.VarChar(100)
+  accountType         AccountType
+  balance             Decimal       @default(0) @db.Decimal(15, 2)
+  accumulatedInterest Decimal       @default(0) @db.Decimal(15, 2)
+  status              AccountStatus @default(active)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  transactions      Transaction[]
+  fees              Fee[]
+  outgoingTransfers Transfer[]    @relation("SourceAccount")
+  incomingTransfers Transfer[]    @relation("DestinationAccount")
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Transaction {
+  id           Int             @id @default(autoincrement())
+  amount       Decimal         @db.Decimal(15, 2)
+  type         TransactionType
+  fee          Decimal         @default(0) @db.Decimal(10, 2)
+  balanceAfter Decimal         @db.Decimal(15, 2)
+  description  String?         @db.VarChar(255)
+  performedBy  String          @db.VarChar(100)
+  createdAt    DateTime        @default(now())
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+model Transfer {
+  id              Int            @id @default(autoincrement())
+  amount          Decimal        @db.Decimal(15, 2)
+  type            TransferType
+  status          TransferStatus @default(pending)
+  externalDetails String?        @db.VarChar(500)
+  description     String?        @db.VarChar(255)
+  performedBy     String         @db.VarChar(100)
+  createdAt       DateTime       @default(now())
+  completedAt     DateTime?
+
+  sourceAccountId      Int
+  sourceAccount        Account  @relation("SourceAccount", fields: [sourceAccountId], references: [id])
+  destinationAccountId Int?
+  destinationAccount   Account? @relation("DestinationAccount", fields: [destinationAccountId], references: [id])
+
+  @@index([sourceAccountId])
+  @@index([destinationAccountId])
+  @@map("transfers")
+}
+
+model Fee {
+  id          Int      @id @default(autoincrement())
+  type        FeeType
+  amount      Decimal  @db.Decimal(10, 2)
+  description String?  @db.VarChar(255)
+  createdAt   DateTime @default(now())
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+  @@map("fees")
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @default(0)
+  username  String   @db.VarChar(100)
+  action    String   @db.VarChar(255)
+  method    String   @db.VarChar(10)
+  url       String   @db.VarChar(500)
+  ip        String   @db.VarChar(45)
+  details   String   @db.Text // JSON du body SANS données sensibles
+  timestamp DateTime @default(now())
+
+  @@index([userId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}

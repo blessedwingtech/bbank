@@ -1,0 +1,41 @@
+<% if (locals.messages) { %>
+  <% if (locals.messages.success && locals.messages.success.length > 0) { %>
+    <% locals.messages.success.forEach(function(msg) { %>
+      <div class="alert alert-success alert-dismissible fade show shadow-sm mb-3" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>
+        <span><%= msg %></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% }); %>
+  <% } %>
+
+  <% if (locals.messages.error && locals.messages.error.length > 0) { %>
+    <% locals.messages.error.forEach(function(msg) { %>
+      <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-3" role="alert">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+        <span><%= msg %></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% }); %>
+  <% } %>
+
+  <% if (locals.messages.warning && locals.messages.warning.length > 0) { %>
+    <% locals.messages.warning.forEach(function(msg) { %>
+      <div class="alert alert-warning alert-dismissible fade show shadow-sm mb-3" role="alert">
+        <i class="fa-solid fa-circle-exclamation me-2"></i>
+        <span><%= msg %></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% }); %>
+  <% } %>
+
+  <% if (locals.messages.info && locals.messages.info.length > 0) { %>
+    <% locals.messages.info.forEach(function(msg) { %>
+      <div class="alert alert-info alert-dismissible fade show shadow-sm mb-3" role="alert">
+        <i class="fa-solid fa-circle-info me-2"></i>
+        <span><%= msg %></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% }); %>
+  <% } %>
+<% } %>

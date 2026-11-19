@@ -1,0 +1,138 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold text-dark mb-1">Effectuer un Virement</h2>
+    <p class="text-muted mb-0">Transférez des fonds en interne instantanément ou vers un compte externe (SEPA).</p>
+  </div>
+  <div>
+    <a href="/transfers/history" hx-get="/transfers/history" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-clock-rotate-left me-1"></i> Historique des virements
+    </a>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-md-10 col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white p-0 border-bottom">
+        <ul class="nav nav-tabs nav-fill" id="transferTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active py-3 fw-semibold" id="internal-tab" data-bs-toggle="tab" data-bs-target="#internal-pane" type="button" role="tab">
+              <i class="fa-solid fa-arrows-rotate me-1 text-primary"></i> Virement Interne (B-Bank)
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link py-3 fw-semibold" id="external-tab" data-bs-toggle="tab" data-bs-target="#external-pane" type="button" role="tab">
+              <i class="fa-solid fa-globe me-1 text-success"></i> Virement Externe (SEPA)
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-body p-4">
+        <div class="tab-content" id="transferTabContent">
+          <!-- Internal Transfer Tab -->
+          <div class="tab-pane fade show active" id="internal-pane" role="tabpanel">
+            <form action="/transfers/internal" method="POST" hx-post="/transfers/internal" hx-target="#main-content">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+              <div class="mb-3">
+                <label for="sourceAccountId" class="form-label fw-semibold">Compte émetteur (débiteur)</label>
+                <select class="form-select" id="sourceAccountId" name="sourceAccountId" required>
+                  <% userAccounts.forEach(function(acc) { %>
+                    <option value="<%= acc.id %>">
+                      <%= acc.accountNumber %> (<%= acc.accountType === 'savings' ? 'Épargne' : 'Courant' %>) - Solde: <%= Number(acc.balance).toFixed(2) %> €
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="destinationAccountNumber" class="form-label fw-semibold">Numéro de compte destinataire (B-Bank)</label>
+                <input type="text" class="form-control" id="destinationAccountNumber" name="destinationAccountNumber" placeholder="BB-12345678" required>
+                <div class="form-text small">Exemple: BB-87654321. Le crédit est immédiat et sans frais.</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="internalAmount" class="form-label fw-semibold">Montant (€)</label>
+                <div class="input-group">
+                  <input type="number" step="0.01" min="0.01" class="form-control" id="internalAmount" name="amount" placeholder="0.00" required>
+                  <span class="input-group-text bg-white">EUR (€)</span>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label for="internalDescription" class="form-label fw-semibold">Motif du virement (Optionnel)</label>
+                <input type="text" class="form-control" id="internalDescription" name="description" placeholder="Ex: Remboursement prêt, loyer...">
+              </div>
+
+              <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary bg-bank-primary border-0 px-4">
+                  <i class="fa-solid fa-paper-plane me-1"></i> Exécuter le virement interne
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- External Transfer Tab -->
+          <div class="tab-pane fade" id="external-pane" role="tabpanel">
+            <form action="/transfers/external" method="POST" hx-post="/transfers/external" hx-target="#main-content">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+              <div class="mb-3">
+                <label for="extSourceAccountId" class="form-label fw-semibold">Compte émetteur (débiteur)</label>
+                <select class="form-select" id="extSourceAccountId" name="sourceAccountId" required>
+                  <% userAccounts.forEach(function(acc) { %>
+                    <option value="<%= acc.id %>">
+                      <%= acc.accountNumber %> (<%= acc.accountType === 'savings' ? 'Épargne' : 'Courant' %>) - Solde: <%= Number(acc.balance).toFixed(2) %> €
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-12 col-md-6">
+                  <label for="beneficiaryName" class="form-label fw-semibold">Nom du bénéficiaire</label>
+                  <input type="text" class="form-control" id="beneficiaryName" name="beneficiaryName" placeholder="Société ou Nom & Prénom" required>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="beneficiaryBic" class="form-label fw-semibold">Code BIC / SWIFT (Optionnel)</label>
+                  <input type="text" class="form-control" id="beneficiaryBic" name="beneficiaryBic" placeholder="BNPAFRPP">
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="beneficiaryIban" class="form-label fw-semibold">IBAN du bénéficiaire</label>
+                <input type="text" class="form-control font-monospace" id="beneficiaryIban" name="beneficiaryIban" placeholder="FR76 1234 5678 9012 3456 7890 123" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="extAmount" class="form-label fw-semibold">Montant (€)</label>
+                <div class="input-group">
+                  <input type="number" step="0.01" min="0.01" class="form-control" id="extAmount" name="amount" placeholder="0.00" required>
+                  <span class="input-group-text bg-white">EUR (€)</span>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label for="extDescription" class="form-label fw-semibold">Motif du virement (Optionnel)</label>
+                <input type="text" class="form-control" id="extDescription" name="description" placeholder="Ex: Facture #12345">
+              </div>
+
+              <div class="alert alert-warning small py-2 mb-4">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                Le virement sera enregistré avec le statut <strong>En attente (pending)</strong> avant validation et exécution par le réseau bancaire interbancaire.
+              </div>
+
+              <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-success border-0 px-4">
+                  <i class="fa-solid fa-globe me-1"></i> Initier le virement externe
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

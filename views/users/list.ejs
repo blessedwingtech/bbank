@@ -1,0 +1,42 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold text-dark mb-1">Gestion des Utilisateurs</h2>
+    <p class="text-muted mb-0">Consultez, modifiez et gérez les comptes utilisateurs de la plateforme.</p>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="input-group">
+          <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+          <input type="search" name="q" class="form-control"
+                 placeholder="Recherche en direct (HTMX)..."
+                 hx-get="/users/search"
+                 hx-target="#users-tbody"
+                 hx-trigger="keyup changed delay:300ms">
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle data-table w-100">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Utilisateur</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Statut</th>
+            <th>Inscription</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody">
+          <%- include("partials/user-table-rows", { users }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

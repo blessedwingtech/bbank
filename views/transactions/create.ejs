@@ -1,0 +1,89 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold text-dark mb-1">Nouvelle Opération Bancaire</h2>
+    <p class="text-muted mb-0">
+      Compte : <strong><%= account ? account.accountNumber + ' (' + account.owner + ')' : '#' + accountId %></strong>
+      | Solde actuel : <strong><%= account ? Number(account.balance).toFixed(2) : '0.00' %> €</strong>
+    </p>
+  </div>
+  <div>
+    <a href="/accounts/<%= accountId %>" hx-get="/accounts/<%= accountId %>" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-arrow-left me-1"></i> Retour au compte
+    </a>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <% if (account && account.status !== 'active') { %>
+          <div class="alert alert-danger">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+            Ce compte est actuellement <strong><%= account.status === 'frozen' ? 'gelé' : 'fermé' %></strong>. Aucune transaction n'est autorisée.
+          </div>
+        <% } else { %>
+          <form action="/accounts/<%= accountId %>/transactions" method="POST" hx-post="/accounts/<%= accountId %>/transactions" hx-target="#main-content">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Nature de l'opération</label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input type="radio" class="btn-check" name="type" id="typeDeposit" value="deposit" checked onchange="updateFeeNotice('deposit')">
+                  <label class="btn btn-outline-success w-100 p-3 text-start" for="typeDeposit">
+                    <div class="fw-bold"><i class="fa-solid fa-money-bill-wave me-1"></i> Dépôt d'espèces</div>
+                    <div class="small text-muted">Frais: 0.9%</div>
+                  </label>
+                </div>
+                <div class="col-6">
+                  <input type="radio" class="btn-check" name="type" id="typeWithdrawal" value="withdrawal" onchange="updateFeeNotice('withdrawal')">
+                  <label class="btn btn-outline-danger w-100 p-3 text-start" for="typeWithdrawal">
+                    <div class="fw-bold"><i class="fa-solid fa-hand-holding-dollar me-1"></i> Retrait d'espèces</div>
+                    <div class="small text-muted">Frais: 1.0%</div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="amount" class="form-label fw-semibold">Montant (€)</label>
+              <div class="input-group">
+                <input type="number" step="0.01" min="0.01" class="form-control form-control-lg" id="amount" name="amount" placeholder="0.00" required>
+                <span class="input-group-text bg-white fw-bold">EUR (€)</span>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label fw-semibold">Motif / Description (Optionnel)</label>
+              <input type="text" class="form-control" id="description" name="description" placeholder="Ex: Dépôt salaire, Retrait guichet...">
+            </div>
+
+            <div class="alert alert-light border small text-muted mb-4" id="feeNotice">
+              <i class="fa-solid fa-info-circle me-1 text-primary"></i>
+              <span>Pour un dépôt, des frais de traitement de <strong>0.9%</strong> sont prélevés.</span>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+              <a href="/accounts/<%= accountId %>" hx-get="/accounts/<%= accountId %>" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary">Annuler</a>
+              <button type="submit" class="btn btn-primary bg-bank-primary border-0">
+                <i class="fa-solid fa-check me-1"></i> Valider l'opération
+              </button>
+            </div>
+          </form>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateFeeNotice(type) {
+    const notice = document.getElementById('feeNotice');
+    if (type === 'deposit') {
+      notice.innerHTML = '<i class="fa-solid fa-info-circle me-1 text-primary"></i> Pour un dépôt, des frais de traitement de <strong>0.9%</strong> sont prélevés.';
+    } else {
+      notice.innerHTML = '<i class="fa-solid fa-info-circle me-1 text-danger"></i> Pour un retrait, des frais de <strong>1.0%</strong> sont appliqués et doivent être couverts par le solde disponible.';
+    }
+  }
+</script>

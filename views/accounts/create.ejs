@@ -1,0 +1,70 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold text-dark mb-1">Ouvrir un Nouveau Compte</h2>
+    <p class="text-muted mb-0">Créez un compte courant ou compte sur livret / épargne.</p>
+  </div>
+  <div>
+    <a href="/accounts" hx-get="/accounts" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-arrow-left me-1"></i> Retour aux comptes
+    </a>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <form action="/accounts" method="POST" hx-post="/accounts" hx-target="#main-content">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <% if (isStaff && allUsers && allUsers.length > 0) { %>
+            <div class="mb-3">
+              <label for="userId" class="form-label fw-semibold">Titulaire du compte (Client)</label>
+              <select class="form-select" id="userId" name="userId" required>
+                <% allUsers.forEach(function(u) { %>
+                  <option value="<%= u.id %>">
+                    <%= u.username %> (<%= u.email %>) - <%= u.firstName ? u.firstName + ' ' + (u.lastName || '') : '' %>
+                  </option>
+                <% }); %>
+              </select>
+              <div class="form-text small">Sélectionnez le client bénéficiaire de ce nouveau compte.</div>
+            </div>
+          <% } %>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Type de Compte</label>
+            <div class="row g-3">
+              <div class="col-6">
+                <input type="radio" class="btn-check" name="accountType" id="typeChecking" value="checking" checked>
+                <label class="btn btn-outline-primary w-100 p-3 text-start" for="typeChecking">
+                  <div class="fw-bold mb-1"><i class="fa-solid fa-credit-card me-1"></i> Compte Courant</div>
+                  <div class="small text-muted">Dépôts, retraits et virements quotidiens.</div>
+                </label>
+              </div>
+
+              <div class="col-6">
+                <input type="radio" class="btn-check" name="accountType" id="typeSavings" value="savings">
+                <label class="btn btn-outline-success w-100 p-3 text-start" for="typeSavings">
+                  <div class="fw-bold mb-1"><i class="fa-solid fa-piggy-bank me-1"></i> Compte Épargne</div>
+                  <div class="small text-muted">Rémunéré à 0.5% / mois (cron automatique).</div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info py-2 small mb-4">
+            <i class="fa-solid fa-circle-info me-1"></i>
+            Le numéro de compte unique au format <code>BB-XXXXXXXX</code> et le solde initial de 0.00 € seront automatiquement initialisés.
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <a href="/accounts" hx-get="/accounts" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary">Annuler</a>
+            <button type="submit" class="btn btn-primary bg-bank-primary border-0">
+              <i class="fa-solid fa-check me-1"></i> Confirmer l'ouverture
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

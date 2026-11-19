@@ -1,0 +1,24 @@
+<% if (!locals.isHtmx) { %>
+  <%- include("../partials/header") %>
+  <%- include("../partials/navbar") %>
+
+  <div class="d-flex" style="min-height: calc(100vh - 56px);">
+    <% if (locals.connected) { %>
+      <%- include("../partials/sidebar") %>
+    <% } %>
+
+    <main class="flex-grow-1 p-3 p-md-4 main-content" id="main-content">
+      <div id="flash-container">
+        <%- include("../partials/flash-messages") %>
+      </div>
+      <%- body %>
+    </main>
+  </div>
+
+  <%- include("../partials/footer") %>
+<% } else { %>
+  <div id="flash-container">
+    <%- include("../partials/flash-messages") %>
+  </div>
+  <%- body %>
+<% } %>

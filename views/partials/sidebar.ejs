@@ -1,0 +1,112 @@
+<% if (locals.connected && locals.user) { %>
+<aside class="sidebar p-3 d-flex flex-column" id="app-sidebar">
+  <div class="mb-4 px-2 d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center">
+      <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 38px; height: 38px;">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <div class="overflow-hidden">
+        <div class="text-white text-truncate fw-semibold small"><%= locals.user.username %></div>
+        <div class="text-muted text-uppercase" style="font-size: 0.65rem;"><%= locals.user.role %></div>
+      </div>
+    </div>
+  </div>
+
+  <ul class="nav flex-column mb-auto">
+    <!-- Dashboard: All Roles -->
+    <li class="nav-item">
+      <a href="/dashboard" hx-get="/dashboard" hx-target="#main-content" hx-push-url="true"
+         class="nav-link <%= locals.currentUrl === '/dashboard' ? 'active' : '' %>">
+        <i class="fa-solid fa-gauge"></i>
+        <span>Tableau de bord</span>
+      </a>
+    </li>
+
+    <!-- Accounts: All Roles -->
+    <li class="nav-item">
+      <a href="/accounts" hx-get="/accounts" hx-target="#main-content" hx-push-url="true"
+         class="nav-link <%= locals.currentUrl && locals.currentUrl.startsWith('/accounts') && !locals.currentUrl.includes('/transactions') ? 'active' : '' %>">
+        <i class="fa-solid fa-wallet"></i>
+        <span><%= locals.user.role === 'user' ? 'Mes Comptes' : 'Tous les Comptes' %></span>
+      </a>
+    </li>
+
+    <!-- Transactions: All Roles -->
+    <li class="nav-item">
+      <a href="/transactions" hx-get="/transactions" hx-target="#main-content" hx-push-url="true"
+         class="nav-link <%= locals.currentUrl && (locals.currentUrl === '/transactions' || locals.currentUrl.includes('/transactions')) ? 'active' : '' %>">
+        <i class="fa-solid fa-money-bill-transfer"></i>
+        <span>Transactions</span>
+      </a>
+    </li>
+
+    <!-- Transfers: All Roles -->
+    <li class="nav-item">
+      <a href="/transfers" hx-get="/transfers" hx-target="#main-content" hx-push-url="true"
+         class="nav-link <%= locals.currentUrl && locals.currentUrl.startsWith('/transfers') && !locals.currentUrl.includes('history') ? 'active' : '' %>">
+        <i class="fa-solid fa-paper-plane"></i>
+        <span>Effectuer un virement</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="/transfers/history" hx-get="/transfers/history" hx-target="#main-content" hx-push-url="true"
+         class="nav-link <%= locals.currentUrl === '/transfers/history' ? 'active' : '' %>">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <span>Historique virements</span>
+      </a>
+    </li>
+
+    <!-- Statements: All Roles -->
+    <li class="nav-item">
+      <a href="/statements" hx-get="/statements" hx-target="#main-content" hx-push-url="true"
+         class="nav-link <%= locals.currentUrl && locals.currentUrl.startsWith('/statements') ? 'active' : '' %>">
+        <i class="fa-solid fa-file-invoice-dollar"></i>
+        <span>Relevés de compte</span>
+      </a>
+    </li>
+
+    <!-- Admin & Manager Only: Users Management -->
+    <% if (locals.user.role === 'admin' || locals.user.role === 'manager') { %>
+      <li class="nav-item mt-3">
+        <div class="text-uppercase text-muted px-3 mb-1" style="font-size: 0.7rem; letter-spacing: 0.05rem;">
+          Administration
+        </div>
+      </li>
+      <li class="nav-item">
+        <a href="/users" hx-get="/users" hx-target="#main-content" hx-push-url="true"
+           class="nav-link <%= locals.currentUrl && locals.currentUrl.startsWith('/users') ? 'active' : '' %>">
+          <i class="fa-solid fa-users"></i>
+          <span>Utilisateurs</span>
+        </a>
+      </li>
+    <% } %>
+
+    <!-- Admin Only: Audit Logs and System Features -->
+    <% if (locals.user.role === 'admin') { %>
+      <li class="nav-item">
+        <a href="/audit-logs" hx-get="/audit-logs" hx-target="#main-content" hx-push-url="true"
+           class="nav-link <%= locals.currentUrl && locals.currentUrl.startsWith('/audit-logs') ? 'active' : '' %>">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Journaux d'audit</span>
+        </a>
+      </li>
+    <% } %>
+  </ul>
+
+  <!-- Admin manual interest trigger -->
+  <% if (locals.user.role === 'admin') { %>
+    <div class="mt-auto pt-3 border-top border-secondary">
+      <form action="/interest/update-monthly" method="POST"
+            hx-post="/interest/update-monthly" hx-target="#main-content"
+            hx-confirm="Êtes-vous sûr de vouloir appliquer manuellement les intérêts mensuels (0.5%) à tous les comptes d'épargne ?">
+        <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+        <button type="submit" class="btn btn-sm btn-outline-warning w-100 d-flex align-items-center justify-content-center">
+          <i class="fa-solid fa-calculator me-1"></i>
+          <span>Calculer Intérêts</span>
+        </button>
+      </form>
+    </div>
+  <% } %>
+</aside>
+<% } %>

@@ -1,0 +1,279 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold text-dark mb-1">Tableau de bord</h2>
+    <p class="text-muted mb-0">Bienvenue sur votre espace bancaire B-Bank, <%= locals.user.firstName ? locals.user.firstName : locals.user.username %></p>
+  </div>
+  <div>
+    <% if (isStaff) { %>
+      <a href="/accounts/create" hx-get="/accounts/create" hx-target="#main-content" hx-push-url="true" class="btn btn-primary bg-bank-primary border-0 btn-sm">
+        <i class="fa-solid fa-plus me-1"></i> Nouveau compte
+      </a>
+    <% } else { %>
+      <a href="/transfers" hx-get="/transfers" hx-target="#main-content" hx-push-url="true" class="btn btn-primary bg-bank-primary border-0 btn-sm">
+        <i class="fa-solid fa-paper-plane me-1"></i> Nouveau virement
+      </a>
+    <% } %>
+  </div>
+</div>
+
+<% if (isStaff) { %>
+  <!-- Staff Dashboard (Admin & Manager) -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card stat-card shadow-sm p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-medium">Clients Actifs</div>
+            <div class="fs-3 fw-bold text-dark"><%= stats.totalUsers %></div>
+          </div>
+          <div class="rounded-circle bg-primary-subtle text-primary p-3">
+            <i class="fa-solid fa-users fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card stat-card shadow-sm p-3 border-success">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-medium">Comptes Bancaires</div>
+            <div class="fs-3 fw-bold text-dark"><%= stats.totalAccounts %></div>
+            <div class="small text-muted"><%= stats.activeAccounts %> actifs / <%= stats.frozenAccounts %> gelés</div>
+          </div>
+          <div class="rounded-circle bg-success-subtle text-success p-3">
+            <i class="fa-solid fa-vault fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card stat-card shadow-sm p-3 border-warning">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-medium">Volume du Mois</div>
+            <div class="fs-3 fw-bold text-dark"><%= stats.monthlyVolume.toFixed(2) %> €</div>
+            <div class="small text-muted"><%= stats.monthlyTransactionsCount %> opérations</div>
+          </div>
+          <div class="rounded-circle bg-warning-subtle text-warning p-3">
+            <i class="fa-solid fa-chart-line fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card stat-card shadow-sm p-3 border-info">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <div class="text-muted small fw-medium">Frais Bancaires Récoltés</div>
+            <div class="fs-3 fw-bold text-dark"><%= stats.monthlyFees.toFixed(2) %> €</div>
+            <div class="small text-muted">Ce mois-ci</div>
+          </div>
+          <div class="rounded-circle bg-info-subtle text-info p-3">
+            <i class="fa-solid fa-coins fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<% } else { %>
+  <!-- Client Dashboard (User) -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="card shadow-sm p-4 bg-bank-primary text-white">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <div class="text-white-50 small">Solde Total Disponible</div>
+            <div class="display-6 fw-bold"><%= totalBalance.toFixed(2) %> €</div>
+          </div>
+          <div class="rounded bg-white bg-opacity-25 p-2">
+            <i class="fa-solid fa-wallet fs-4"></i>
+          </div>
+        </div>
+        <div class="small text-white-50">
+          Réparti sur <%= accounts.length %> compte(s)
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="card shadow-sm p-4 bg-success text-white">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <div class="text-white-50 small">Intérêts Épargne Cumulés</div>
+            <div class="display-6 fw-bold">+<%= totalAccumulatedInterest.toFixed(2) %> €</div>
+          </div>
+          <div class="rounded bg-white bg-opacity-25 p-2">
+            <i class="fa-solid fa-piggy-bank fs-4"></i>
+          </div>
+        </div>
+        <div class="small text-white-50">
+          Rendement mensuel garanti (0.5%)
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-12 col-xl-4">
+      <div class="card shadow-sm p-4 h-100 d-flex justify-content-center">
+        <div class="d-flex gap-2">
+          <a href="/accounts/create" hx-get="/accounts/create" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-primary flex-grow-1 py-2">
+            <i class="fa-solid fa-plus-circle me-1"></i> Ouvrir un compte
+          </a>
+          <a href="/transfers" hx-get="/transfers" hx-target="#main-content" hx-push-url="true" class="btn btn-primary bg-bank-primary border-0 flex-grow-1 py-2">
+            <i class="fa-solid fa-paper-plane me-1"></i> Virement
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Accounts List -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+      <h5 class="fw-bold mb-0 text-dark">Mes comptes</h5>
+      <a href="/accounts" hx-get="/accounts" hx-target="#main-content" hx-push-url="true" class="text-primary small fw-semibold">Voir tous</a>
+    </div>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Numéro de compte</th>
+            <th>Type</th>
+            <th>Statut</th>
+            <th>Solde</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (accounts.length === 0) { %>
+            <tr><td colspan="5" class="text-center py-4 text-muted">Aucun compte bancaire actif.</td></tr>
+          <% } else { %>
+            <% accounts.forEach(function(acc) { %>
+              <tr>
+                <td class="fw-semibold">
+                  <a href="/accounts/<%= acc.id %>" hx-get="/accounts/<%= acc.id %>" hx-target="#main-content" hx-push-url="true" class="text-decoration-none">
+                    <%= acc.accountNumber %>
+                  </a>
+                </td>
+                <td>
+                  <span class="badge <%= acc.accountType === 'savings' ? 'badge-savings' : 'badge-checking' %>">
+                    <%= acc.accountType === 'savings' ? 'Épargne' : 'Courant' %>
+                  </span>
+                </td>
+                <td>
+                  <span class="badge <%= acc.status === 'active' ? 'badge-active' : 'badge-frozen' %>">
+                    <%= acc.status === 'active' ? 'Actif' : 'Gelé' %>
+                  </span>
+                </td>
+                <td class="fw-bold fs-6"><%= Number(acc.balance).toFixed(2) %> €</td>
+                <td class="text-end">
+                  <a href="/accounts/<%= acc.id %>/transactions/create" hx-get="/accounts/<%= acc.id %>/transactions/create" hx-target="#main-content" hx-push-url="true" class="btn btn-sm btn-outline-primary me-1">
+                    <i class="fa-solid fa-arrow-down-up-across-line"></i> Opération
+                  </a>
+                  <a href="/accounts/<%= acc.id %>" hx-get="/accounts/<%= acc.id %>" hx-target="#main-content" hx-push-url="true" class="btn btn-sm btn-light">
+                    Détails
+                  </a>
+                </td>
+              </tr>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } %>
+
+<!-- Recent Transactions & Recent Transfers Grid -->
+<div class="row g-4">
+  <div class="col-12 col-lg-7">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 text-dark">Dernières opérations</h5>
+        <a href="/transactions" hx-get="/transactions" hx-target="#main-content" hx-push-url="true" class="text-primary small fw-semibold">Voir tout</a>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Date</th>
+                <th>Compte</th>
+                <th>Description</th>
+                <th>Montant</th>
+                <th>Solde</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (recentTransactions.length === 0) { %>
+                <tr><td colspan="5" class="text-center py-4 text-muted">Aucune transaction récente.</td></tr>
+              <% } else { %>
+                <% recentTransactions.forEach(function(tx) { %>
+                  <tr>
+                    <td class="small text-muted"><%= new Date(tx.createdAt).toLocaleDateString('fr-FR') %></td>
+                    <td class="small fw-semibold"><%= tx.account?.accountNumber || '-' %></td>
+                    <td>
+                      <span class="badge <%= tx.type === 'deposit' ? 'bg-success-subtle text-success' : (tx.type === 'interest' ? 'bg-info-subtle text-info' : 'bg-danger-subtle text-danger') %> me-1">
+                        <%= tx.type %>
+                      </span>
+                      <span class="small"><%= tx.description || '-' %></span>
+                    </td>
+                    <td class="<%= tx.type === 'withdrawal' ? 'amount-negative' : 'amount-positive' %>">
+                      <%= tx.type === 'withdrawal' ? '-' : '+' %><%= Number(tx.amount).toFixed(2) %> €
+                    </td>
+                    <td class="small fw-medium"><%= Number(tx.balanceAfter).toFixed(2) %> €</td>
+                  </tr>
+                <% }); %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 text-dark">Derniers virements</h5>
+        <a href="/transfers/history" hx-get="/transfers/history" hx-target="#main-content" hx-push-url="true" class="text-primary small fw-semibold">Historique</a>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Montant</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (recentTransfers.length === 0) { %>
+                <tr><td colspan="4" class="text-center py-4 text-muted">Aucun virement récent.</td></tr>
+              <% } else { %>
+                <% recentTransfers.forEach(function(tr) { %>
+                  <tr>
+                    <td class="small text-muted"><%= new Date(tr.createdAt).toLocaleDateString('fr-FR') %></td>
+                    <td>
+                      <span class="badge bg-secondary"><%= tr.type %></span>
+                    </td>
+                    <td class="fw-semibold"><%= Number(tr.amount).toFixed(2) %> €</td>
+                    <td>
+                      <span class="badge <%= tr.status === 'completed' ? 'bg-success' : (tr.status === 'pending' ? 'bg-warning text-dark' : 'bg-danger') %>">
+                        <%= tr.status %>
+                      </span>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

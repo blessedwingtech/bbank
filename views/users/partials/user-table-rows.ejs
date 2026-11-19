@@ -1,0 +1,43 @@
+<% users.forEach(function(u) { %>
+  <tr id="user-<%= u.id %>">
+    <td class="fw-semibold">#<%= u.id %></td>
+    <td>
+      <div class="fw-bold"><%= u.username %></div>
+      <div class="small text-muted"><%= u.firstName ? u.firstName + ' ' + (u.lastName || '') : '' %></div>
+    </td>
+    <td><%= u.email %></td>
+    <td>
+      <% if (u.role === 'admin') { %>
+        <span class="badge bg-danger">Admin</span>
+      <% } else if (u.role === 'manager') { %>
+        <span class="badge bg-info text-dark">Manager</span>
+      <% } else { %>
+        <span class="badge bg-success">User</span>
+      <% } %>
+    </td>
+    <td>
+      <% if (u.isActive) { %>
+        <span class="badge bg-success-subtle text-success border border-success-subtle">Actif</span>
+      <% } else { %>
+        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Désactivé</span>
+      <% } %>
+    </td>
+    <td class="small text-muted"><%= new Date(u.createdAt).toLocaleDateString('fr-FR') %></td>
+    <td class="text-end">
+      <div class="btn-group btn-group-sm">
+        <a href="/users/<%= u.id %>/edit" hx-get="/users/<%= u.id %>/edit" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-primary" title="Modifier">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </a>
+        <% if (locals.user && locals.user.id !== u.id && u.isActive) { %>
+          <button type="button" class="btn btn-outline-danger"
+                  hx-delete="/users/<%= u.id %>"
+                  hx-target="#user-<%= u.id %>"
+                  hx-swap="outerHTML"
+                  hx-confirm="Êtes-vous sûr de vouloir désactiver cet utilisateur ?">
+            <i class="fa-solid fa-user-xmark"></i>
+          </button>
+        <% } %>
+      </div>
+    </td>
+  </tr>
+<% }); %>

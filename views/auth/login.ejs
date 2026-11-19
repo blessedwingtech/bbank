@@ -1,0 +1,47 @@
+<div class="row justify-content-center align-items-center" style="min-height: 75vh;">
+  <div class="col-12 col-md-8 col-lg-5 col-xl-4">
+    <div class="card shadow-lg border-0">
+      <div class="card-body p-4 p-md-5">
+        <div class="text-center mb-4">
+          <div class="display-5 text-bank-primary mb-2">
+            <i class="fa-solid fa-building-columns"></i>
+          </div>
+          <h3 class="fw-bold text-dark">Connexion B-Bank</h3>
+          <p class="text-muted small">Accédez à votre espace bancaire sécurisé</p>
+        </div>
+
+        <form action="/auth/login" method="POST" hx-post="/auth/login" hx-target="#main-content">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="mb-3">
+            <label for="email" class="form-label fw-semibold">Adresse Email</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-envelope"></i></span>
+              <input type="email" class="form-control" id="email" name="email" placeholder="nom@exemple.com" required autofocus>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <label for="password" class="form-label fw-semibold">Mot de passe</label>
+            </div>
+            <div class="input-group">
+              <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-lock"></i></span>
+              <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold bg-bank-primary border-0 shadow-sm">
+            <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Se connecter
+          </button>
+        </form>
+
+        <div class="mt-4 pt-3 border-top text-center">
+          <p class="text-muted small mb-0">
+            Nouveau client ? <a href="/auth/register" hx-get="/auth/register" hx-target="#main-content" hx-push-url="true" class="fw-semibold text-primary">Créer un compte</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

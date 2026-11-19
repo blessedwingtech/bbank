@@ -1,0 +1,131 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <h2 class="fw-bold text-dark mb-0"><%= account.accountNumber %></h2>
+      <span class="badge <%= account.accountType === 'savings' ? 'badge-savings' : 'badge-checking' %>">
+        <%= account.accountType === 'savings' ? 'Compte Épargne' : 'Compte Courant' %>
+      </span>
+      <span class="badge <%= account.status === 'active' ? 'badge-active' : 'badge-frozen' %>">
+        <%= account.status === 'active' ? 'Actif' : 'Gelé' %>
+      </span>
+    </div>
+    <p class="text-muted mb-0">Titulaire : <%= account.owner %></p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/accounts/<%= account.id %>/transactions/create" hx-get="/accounts/<%= account.id %>/transactions/create" hx-target="#main-content" hx-push-url="true" class="btn btn-primary bg-bank-primary border-0 btn-sm">
+      <i class="fa-solid fa-arrow-down-up-across-line me-1"></i> Opération
+    </a>
+    <a href="/statements/<%= account.id %>" hx-get="/statements/<%= account.id %>" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-file-invoice me-1"></i> Relevé
+    </a>
+    <a href="/statements/<%= account.id %>/download" class="btn btn-outline-danger btn-sm">
+      <i class="fa-solid fa-file-pdf me-1"></i> PDF
+    </a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-12 col-md-4">
+    <div class="card shadow-sm p-4 h-100">
+      <div class="text-muted small fw-medium mb-1">Solde Actuel</div>
+      <div class="display-6 fw-bold text-dark"><%= Number(account.balance).toFixed(2) %> €</div>
+      <div class="text-muted small mt-2">Dernière mise à jour : <%= new Date(account.updatedAt).toLocaleDateString('fr-FR') %></div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-4">
+    <div class="card shadow-sm p-4 h-100">
+      <div class="text-muted small fw-medium mb-1">Intérêts Cumulés</div>
+      <div class="display-6 fw-bold text-success">+<%= Number(account.accumulatedInterest).toFixed(2) %> €</div>
+      <div class="text-muted small mt-2">
+        <% if (account.accountType === 'savings') { %>
+          Taux d'intérêt : 0.5% / mois
+        <% } else { %>
+          Non rémunéré (Compte Courant)
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-4">
+    <div class="card shadow-sm p-4 h-100 d-flex flex-column justify-content-between">
+      <div>
+        <div class="text-muted small fw-medium mb-1">Gestion & Sécurité</div>
+        <div class="fw-semibold">Statut : <%= account.status === 'active' ? 'Compte Opérationnel' : 'Compte Bloqué / Gelé' %></div>
+      </div>
+
+      <% if (locals.user && locals.user.role === 'admin') { %>
+        <div class="mt-3">
+          <% if (account.status === 'active') { %>
+            <form action="/accounts/<%= account.id %>/freeze" method="POST"
+                  hx-post="/accounts/<%= account.id %>/freeze" hx-target="#main-content"
+                  hx-confirm="Êtes-vous sûr de vouloir geler ce compte ? Aucune opération ne pourra être effectuée.">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                <i class="fa-solid fa-snowflake me-1"></i> Geler le compte
+              </button>
+            </form>
+          <% } else { %>
+            <form action="/accounts/<%= account.id %>/unfreeze" method="POST"
+                  hx-post="/accounts/<%= account.id %>/unfreeze" hx-target="#main-content"
+                  hx-confirm="Êtes-vous sûr de vouloir réactiver ce compte ?">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn btn-outline-success btn-sm w-100">
+                <i class="fa-solid fa-lock-open me-1"></i> Réactiver le compte
+              </button>
+            </form>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+    <h5 class="fw-bold mb-0 text-dark">Historique des transactions du compte</h5>
+    <a href="/accounts/<%= account.id %>/transactions" hx-get="/accounts/<%= account.id %>/transactions" hx-target="#main-content" hx-push-url="true" class="text-primary small fw-semibold">
+      Voir toutes les transactions
+    </a>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Montant</th>
+            <th>Frais</th>
+            <th>Solde Après</th>
+            <th>Effectué par</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!account.transactions || account.transactions.length === 0) { %>
+            <tr><td colspan="7" class="text-center py-4 text-muted">Aucune transaction enregistrée sur ce compte.</td></tr>
+          <% } else { %>
+            <% account.transactions.forEach(function(tx) { %>
+              <tr>
+                <td class="small text-muted"><%= new Date(tx.createdAt).toLocaleDateString('fr-FR') %></td>
+                <td>
+                  <span class="badge <%= tx.type === 'deposit' ? 'bg-success' : (tx.type === 'interest' ? 'bg-info text-dark' : 'bg-danger') %>">
+                    <%= tx.type === 'deposit' ? 'Dépôt' : (tx.type === 'interest' ? 'Intérêts' : 'Retrait') %>
+                  </span>
+                </td>
+                <td class="small"><%= tx.description || '-' %></td>
+                <td class="<%= tx.type === 'withdrawal' ? 'amount-negative' : 'amount-positive' %>">
+                  <%= tx.type === 'withdrawal' ? '-' : '+' %><%= Number(tx.amount).toFixed(2) %> €
+                </td>
+                <td class="small text-muted"><%= Number(tx.fee).toFixed(2) %> €</td>
+                <td class="fw-semibold"><%= Number(tx.balanceAfter).toFixed(2) %> €</td>
+                <td class="small text-muted"><%= tx.performedBy %></td>
+              </tr>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

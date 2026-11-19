@@ -1,0 +1,83 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold text-dark mb-1">Journaux d'Audit & Sécurité</h2>
+    <p class="text-muted mb-0">Traçabilité complète des requêtes HTTP, actions utilisateurs et adresses IP.</p>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-white py-3">
+    <form action="/audit-logs" method="GET" class="row g-2 align-items-end">
+      <div class="col-12 col-md-3">
+        <label class="form-label small text-muted mb-1">Utilisateur</label>
+        <input type="text" name="username" class="form-control form-control-sm" placeholder="Nom d'utilisateur" value="<%= filters?.username || '' %>">
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="form-label small text-muted mb-1">Action</label>
+        <input type="text" name="action" class="form-control form-control-sm" placeholder="Ex: POST /accounts" value="<%= filters?.action || '' %>">
+      </div>
+      <div class="col-12 col-md-2">
+        <label class="form-label small text-muted mb-1">Date début</label>
+        <input type="date" name="startDate" class="form-control form-control-sm" value="<%= filters?.startDate || '' %>">
+      </div>
+      <div class="col-12 col-md-2">
+        <label class="form-label small text-muted mb-1">Date fin</label>
+        <input type="date" name="endDate" class="form-control form-control-sm" value="<%= filters?.endDate || '' %>">
+      </div>
+      <div class="col-12 col-md-2 d-flex gap-1">
+        <button type="submit" class="btn btn-primary bg-bank-primary border-0 btn-sm w-100"
+                hx-get="/audit-logs" hx-target="#main-content" hx-push-url="true" hx-include="closest form">
+          <i class="fa-solid fa-filter me-1"></i> Filtrer
+        </button>
+        <a href="/audit-logs" hx-get="/audit-logs" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary btn-sm">
+          <i class="fa-solid fa-rotate-left"></i>
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle data-table w-100">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Date & Heure</th>
+            <th>Utilisateur</th>
+            <th>Méthode</th>
+            <th>URL / Route</th>
+            <th>Adresse IP</th>
+            <th>Détails (Masqués)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% logs.forEach(function(log) { %>
+            <tr>
+              <td class="small text-muted">#<%= log.id %></td>
+              <td class="small text-muted"><%= new Date(log.timestamp).toLocaleDateString('fr-FR') %> <%= new Date(log.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) %></td>
+              <td class="fw-semibold">
+                <% if (log.userId > 0) { %>
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                    #<%= log.userId %> <%= log.username %>
+                  </span>
+                <% } else { %>
+                  <span class="badge bg-secondary-subtle text-secondary">Anonyme</span>
+                <% } %>
+              </td>
+              <td>
+                <span class="badge <%= log.method === 'POST' ? 'bg-primary' : (log.method === 'DELETE' ? 'bg-danger' : (log.method === 'PUT' ? 'bg-warning text-dark' : 'bg-light text-dark border')) %>">
+                  <%= log.method %>
+                </span>
+              </td>
+              <td class="small font-monospace"><%= log.url %></td>
+              <td class="small font-monospace text-muted"><%= log.ip %></td>
+              <td class="small font-monospace text-break" style="max-width: 250px;">
+                <span title="<%= log.details %>"><%= log.details.length > 50 ? log.details.substring(0, 50) + '...' : log.details %></span>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

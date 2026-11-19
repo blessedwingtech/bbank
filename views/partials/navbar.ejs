@@ -1,0 +1,52 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-bank-primary sticky-top shadow-sm px-3">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="/dashboard" hx-get="/dashboard" hx-target="#main-content" hx-push-url="true">
+      <i class="fa-solid fa-building-columns me-2 fs-4 text-warning"></i>
+      <span>B-Bank</span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <span class="navbar-text text-light-emphasis small d-none d-md-inline">
+            Plateforme Sécurisée de Gestion Bancaire & Micro-Crédit
+          </span>
+        </li>
+      </ul>
+
+      <% if (locals.connected && locals.user) { %>
+        <div class="d-flex align-items-center">
+          <div class="me-3 text-end d-none d-sm-block text-white">
+            <div class="fw-semibold"><%= locals.user.firstName ? locals.user.firstName + ' ' + (locals.user.lastName || '') : locals.user.username %></div>
+            <div class="small">
+              <% if (locals.user.role === 'admin') { %>
+                <span class="badge bg-danger">Administrateur</span>
+              <% } else if (locals.user.role === 'manager') { %>
+                <span class="badge bg-info text-dark">Manager</span>
+              <% } else { %>
+                <span class="badge bg-success">Client</span>
+              <% } %>
+            </div>
+          </div>
+
+          <form action="/auth/logout" method="POST" class="d-inline">
+            <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+            <button type="submit" class="btn btn-outline-light btn-sm d-flex align-items-center" title="Se déconnecter">
+              <i class="fa-solid fa-right-from-bracket me-1"></i>
+              <span class="d-none d-md-inline">Déconnexion</span>
+            </button>
+          </form>
+        </div>
+      <% } else { %>
+        <div class="d-flex gap-2">
+          <a href="/auth/login" class="btn btn-light btn-sm">Connexion</a>
+          <a href="/auth/register" class="btn btn-warning btn-sm">Ouvrir un compte</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</nav>

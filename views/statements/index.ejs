@@ -1,0 +1,52 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold text-dark mb-1">Relevés de Compte</h2>
+    <p class="text-muted mb-0">Sélectionnez un compte et une période pour consulter et télécharger votre relevé.</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <% accounts.forEach(function(acc) { %>
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="card shadow-sm h-100 p-4 border-top border-4 <%= acc.accountType === 'savings' ? 'border-success' : 'border-primary' %>">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="badge <%= acc.accountType === 'savings' ? 'badge-savings' : 'badge-checking' %>">
+            <%= acc.accountType === 'savings' ? 'Compte Épargne' : 'Compte Courant' %>
+          </span>
+          <span class="badge <%= acc.status === 'active' ? 'badge-active' : 'badge-frozen' %>"><%= acc.status %></span>
+        </div>
+
+        <h4 class="fw-bold text-dark mb-1"><%= acc.accountNumber %></h4>
+        <div class="text-muted small mb-3">Titulaire : <%= acc.owner %></div>
+
+        <div class="mb-4">
+          <div class="small text-muted">Solde Actuel</div>
+          <div class="fs-4 fw-bold text-dark"><%= Number(acc.balance).toFixed(2) %> €</div>
+        </div>
+
+        <form action="/statements/<%= acc.id %>" method="GET" class="mt-auto">
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small text-muted mb-1">Du</label>
+              <input type="date" name="startDate" class="form-control form-control-sm">
+            </div>
+            <div class="col-6">
+              <label class="form-label small text-muted mb-1">Au</label>
+              <input type="date" name="endDate" class="form-control form-control-sm">
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-outline-primary btn-sm flex-grow-1"
+                    hx-get="/statements/<%= acc.id %>" hx-target="#main-content" hx-push-url="true" hx-include="closest form">
+              <i class="fa-solid fa-eye me-1"></i> Consulter
+            </button>
+            <a href="/statements/<%= acc.id %>/download" class="btn btn-outline-danger btn-sm">
+              <i class="fa-solid fa-file-pdf me-1"></i> PDF
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  <% }); %>
+</div>
