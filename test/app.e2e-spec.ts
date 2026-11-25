@@ -36,6 +36,22 @@ describe('AppController (e2e)', () => {
     auditLog: {
       create: jest.fn(),
     },
+    systemSetting: {
+      findFirst: jest.fn().mockResolvedValue({
+        id: 1,
+        institutionName: 'B-Bank Pro',
+        institutionType: 'microfinance',
+        enableMicrocredit: true,
+        enableCooperative: true,
+        enableTontine: true,
+        enableStandardBank: true,
+        enable2FAForTransfers: false,
+        maxDailyTransferLimit: 5000,
+        defaultCurrency: 'EUR',
+      }),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
   };
 
   beforeAll(async () => {

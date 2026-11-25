@@ -66,6 +66,63 @@
       </a>
     </li>
 
+    <!-- MODULE MICRO-CRÉDIT (Conditionnel selon SystemSetting) -->
+    <% if (locals.systemSettings && locals.systemSettings.enableMicrocredit) { %>
+      <li class="nav-item mt-3">
+        <div class="text-uppercase text-muted px-3 mb-1" style="font-size: 0.7rem; letter-spacing: 0.05rem;">
+          Micro-Crédit
+        </div>
+      </li>
+      <li class="nav-item">
+        <a href="/loans" hx-get="/loans" hx-target="#main-content" hx-push-url="true"
+           class="nav-link <%= locals.currentUrl && locals.currentUrl.startsWith('/loans') && !locals.currentUrl.includes('/simulate') && !locals.currentUrl.includes('/apply') && !locals.currentUrl.includes('/products') ? 'active' : '' %>">
+          <i class="fa-solid fa-hand-holding-dollar"></i>
+          <span>Dossiers de Crédit</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/loans/simulate" hx-get="/loans/simulate" hx-target="#main-content" hx-push-url="true"
+           class="nav-link <%= locals.currentUrl && locals.currentUrl.includes('/loans/simulate') ? 'active' : '' %>">
+          <i class="fa-solid fa-calculator"></i>
+          <span>Simulateur Prêt</span>
+        </a>
+      </li>
+      <% if (locals.user.role === 'user') { %>
+        <li class="nav-item">
+          <a href="/loans/apply" hx-get="/loans/apply" hx-target="#main-content" hx-push-url="true"
+             class="nav-link <%= locals.currentUrl && locals.currentUrl.includes('/loans/apply') ? 'active' : '' %>">
+            <i class="fa-solid fa-file-signature"></i>
+            <span>Demande de Prêt</span>
+          </a>
+        </li>
+      <% } %>
+      <% if (locals.user.role === 'admin') { %>
+        <li class="nav-item">
+          <a href="/loans/products" hx-get="/loans/products" hx-target="#main-content" hx-push-url="true"
+             class="nav-link <%= locals.currentUrl && locals.currentUrl.includes('/loans/products') ? 'active' : '' %>">
+            <i class="fa-solid fa-tags"></i>
+            <span>Produits de Crédit</span>
+          </a>
+        </li>
+      <% } %>
+    <% } %>
+
+    <!-- MODULE COOPÉRATIVE & TONTINES (Conditionnel) -->
+    <% if (locals.systemSettings && (locals.systemSettings.enableCooperative || locals.systemSettings.enableTontine)) { %>
+      <li class="nav-item mt-3">
+        <div class="text-uppercase text-muted px-3 mb-1" style="font-size: 0.7rem; letter-spacing: 0.05rem;">
+          Mutuelle & Tontines
+        </div>
+      </li>
+      <li class="nav-item">
+        <a href="/cooperative" hx-get="/cooperative" hx-target="#main-content" hx-push-url="true"
+           class="nav-link <%= locals.currentUrl && locals.currentUrl.startsWith('/cooperative') ? 'active' : '' %>">
+          <i class="fa-solid fa-people-roof"></i>
+          <span>Parts & Tontines</span>
+        </a>
+      </li>
+    <% } %>
+
     <!-- Admin & Manager Only: Users Management -->
     <% if (locals.user.role === 'admin' || locals.user.role === 'manager') { %>
       <li class="nav-item mt-3">
@@ -82,13 +139,20 @@
       </li>
     <% } %>
 
-    <!-- Admin Only: Audit Logs and System Features -->
+    <!-- Admin Only: Audit Logs and System Settings -->
     <% if (locals.user.role === 'admin') { %>
       <li class="nav-item">
         <a href="/audit-logs" hx-get="/audit-logs" hx-target="#main-content" hx-push-url="true"
            class="nav-link <%= locals.currentUrl && locals.currentUrl.startsWith('/audit-logs') ? 'active' : '' %>">
           <i class="fa-solid fa-shield-halved"></i>
           <span>Journaux d'audit</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="/settings" hx-get="/settings" hx-target="#main-content" hx-push-url="true"
+           class="nav-link <%= locals.currentUrl && locals.currentUrl.startsWith('/settings') ? 'active' : '' %>">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Paramètres Progiciel</span>
         </a>
       </li>
     <% } %>

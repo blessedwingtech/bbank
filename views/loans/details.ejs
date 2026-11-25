@@ -1,0 +1,169 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <h2 class="fw-bold text-dark mb-0"><%= loan.loanNumber %></h2>
+      <% if (loan.status === 'submitted') { %>
+        <span class="badge bg-warning text-dark">Soumis / En attente</span>
+      <% } else if (loan.status === 'approved') { %>
+        <span class="badge bg-info text-dark">Approuvé</span>
+      <% } else if (loan.status === 'disbursed') { %>
+        <span class="badge bg-primary">Débloqué / En cours</span>
+      <% } else if (loan.status === 'repaid') { %>
+        <span class="badge bg-success">Soldé / Remboursé</span>
+      <% } else if (loan.status === 'rejected') { %>
+        <span class="badge bg-danger">Rejeté</span>
+      <% } else { %>
+        <span class="badge bg-secondary"><%= loan.status %></span>
+      <% } %>
+    </div>
+    <p class="text-muted mb-0">Emprunteur : <strong><%= loan.user.firstName ? loan.user.firstName + ' ' + (loan.user.lastName || '') : loan.user.username %></strong> | Motif : <%= loan.purpose %></p>
+  </div>
+
+  <div class="d-flex gap-2">
+    <a href="/loans" hx-get="/loans" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-arrow-left me-1"></i> Tous les prêts
+    </a>
+
+    <% if (isStaff) { %>
+      <% if (loan.status === 'submitted') { %>
+        <form action="/loans/<%= loan.id %>/approve" method="POST"
+              hx-post="/loans/<%= loan.id %>/approve" hx-target="#main-content"
+              hx-confirm="Êtes-vous sûr de vouloir approuver ce dossier de crédit ?">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-success btn-sm">
+            <i class="fa-solid fa-check me-1"></i> Approuver le crédit
+          </button>
+        </form>
+      <% } else if (loan.status === 'approved') { %>
+        <form action="/loans/<%= loan.id %>/disburse" method="POST"
+              hx-post="/loans/<%= loan.id %>/disburse" hx-target="#main-content"
+              hx-confirm="Confirmer le déblocage des fonds ? Le compte client <%= loan.account.accountNumber %> sera crédité de <%= Number(loan.amountApproved).toFixed(2) %> € et l'échéancier sera activé.">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-primary bg-bank-primary border-0 btn-sm">
+            <i class="fa-solid fa-money-bill-transfer me-1"></i> Débloquer les fonds
+          </button>
+        </form>
+      <% } %>
+    <% } %>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-12 col-md-3">
+    <div class="card shadow-sm p-4 h-100">
+      <div class="text-muted small fw-medium mb-1">Montant du Prêt</div>
+      <div class="display-6 fw-bold text-dark"><%= Number(loan.amountRequested).toFixed(2) %> €</div>
+      <div class="text-muted small mt-2">Durée : <%= loan.durationMonths %> mois (<%= Number(loan.interestRate) %>%)</div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-3">
+    <div class="card shadow-sm p-4 h-100">
+      <div class="text-muted small fw-medium mb-1">Mensualité Prévue</div>
+      <div class="display-6 fw-bold text-primary"><%= Number(loan.monthlyPayment).toFixed(2) %> €</div>
+      <div class="text-muted small mt-2">Mode : <%= loan.interestMethod === 'flat' ? 'Taux Constant' : 'Dégressif' %></div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-3">
+    <div class="card shadow-sm p-4 h-100">
+      <div class="text-muted small fw-medium mb-1">Total à Rembourser</div>
+      <div class="display-6 fw-bold text-dark"><%= Number(loan.totalRepayable).toFixed(2) %> €</div>
+      <div class="text-muted small mt-2">Intérêts totaux : +<%= Number(loan.totalInterest).toFixed(2) %> €</div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-3">
+    <div class="card shadow-sm p-4 h-100">
+      <div class="text-muted small fw-medium mb-1">Compte Associé</div>
+      <div class="fw-bold fs-5 text-dark mb-1"><%= loan.account.accountNumber %></div>
+      <div class="text-muted small">Solde disponible : <strong><%= Number(loan.account.balance).toFixed(2) %> €</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- Repayment Progress Bar (If Disbursed) -->
+<% if (loan.status === 'disbursed' || loan.status === 'repaid') { %>
+  <%
+    const paidCount = loan.schedules.filter(s => s.status === 'paid').length;
+    const progressPercent = Math.round((paidCount / loan.schedules.length) * 100);
+  %>
+  <div class="card shadow-sm p-3 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="fw-bold text-dark small">Progression du remboursement (<%= paidCount %> / <%= loan.schedules.length %> échéances payées)</span>
+      <span class="fw-bold text-primary small"><%= progressPercent %>%</span>
+    </div>
+    <div class="progress" style="height: 10px;">
+      <div class="progress-bar bg-success" role="progressbar" style="width: <%= progressPercent %>%;" aria-valuenow="<%= progressPercent %>" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  </div>
+<% } %>
+
+<!-- Repayment Schedule Table -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+    <h5 class="fw-bold mb-0 text-dark">Tableau d'Amortissement & Échéancier</h5>
+    <% if (loan.schedules.length === 0) { %>
+      <span class="badge bg-warning text-dark">L'échéancier sera généré lors du déblocage</span>
+    <% } %>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Échéance</th>
+            <th>Date d'échéance</th>
+            <th>Part Capital</th>
+            <th>Part Intérêt</th>
+            <th>Pénalités</th>
+            <th>Total Dû</th>
+            <th>Statut</th>
+            <th>Date Règlement</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (loan.schedules.length === 0) { %>
+            <tr><td colspan="9" class="text-center py-4 text-muted">Aucune échéance active pour le moment. Le dossier doit être approuvé puis débloqué.</td></tr>
+          <% } else { %>
+            <% loan.schedules.forEach(function(sc) { %>
+              <tr class="<%= sc.status === 'overdue' ? 'table-danger' : (sc.status === 'paid' ? 'table-light' : '') %>">
+                <td class="fw-bold">#<%= sc.installmentNumber %></td>
+                <td class="small"><%= new Date(sc.dueDate).toLocaleDateString('fr-FR') %></td>
+                <td><%= Number(sc.principalAmount).toFixed(2) %> €</td>
+                <td class="text-danger">+<%= Number(sc.interestAmount).toFixed(2) %> €</td>
+                <td class="text-danger fw-semibold"><%= Number(sc.penaltyAmount) > 0 ? '+' + Number(sc.penaltyAmount).toFixed(2) + ' €' : '-' %></td>
+                <td class="fw-bold text-primary fs-6"><%= (Number(sc.totalDue) + Number(sc.penaltyAmount)).toFixed(2) %> €</td>
+                <td>
+                  <% if (sc.status === 'paid') { %>
+                    <span class="badge bg-success">Payé</span>
+                  <% } else if (sc.status === 'overdue') { %>
+                    <span class="badge bg-danger">En retard</span>
+                  <% } else { %>
+                    <span class="badge bg-warning text-dark">En attente</span>
+                  <% } %>
+                </td>
+                <td class="small text-muted"><%= sc.paidAt ? new Date(sc.paidAt).toLocaleDateString('fr-FR') : '-' %></td>
+                <td class="text-end">
+                  <% if (sc.status !== 'paid' && (loan.status === 'disbursed')) { %>
+                    <form action="/loans/<%= loan.id %>/repay/<%= sc.id %>" method="POST"
+                          hx-post="/loans/<%= loan.id %>/repay/<%= sc.id %>" hx-target="#main-content"
+                          hx-confirm="Confirmer le paiement de l'échéance #<%= sc.installmentNumber %> d'un montant de <%= (Number(sc.totalDue) + Number(sc.penaltyAmount)).toFixed(2) %> € ? Le compte sera débité.">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn btn-outline-success btn-sm">
+                        <i class="fa-solid fa-money-bill-wave me-1"></i> Payer
+                      </button>
+                    </form>
+                  <% } else if (sc.status === 'paid') { %>
+                    <span class="text-success small fw-semibold"><i class="fa-solid fa-circle-check"></i> Réglé</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

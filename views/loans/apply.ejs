@@ -1,0 +1,122 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold text-dark mb-1">Demande de Micro-Crédit</h2>
+    <p class="text-muted mb-0">Remplissez les informations requises pour l'instruction de votre dossier.</p>
+  </div>
+  <div>
+    <a href="/loans" hx-get="/loans" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-arrow-left me-1"></i> Retour aux crédits
+    </a>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <% if (accounts.length === 0) { %>
+          <div class="alert alert-warning">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i>
+            Vous devez posséder au moins un compte bancaire actif pour déposer une demande de prêt.
+          </div>
+        <% } else if (products.length === 0) { %>
+          <div class="alert alert-info">
+            <i class="fa-solid fa-circle-info me-1"></i>
+            Aucun produit de crédit n'est disponible actuellement. Veuillez contacter votre conseiller.
+          </div>
+        <% } else { %>
+          <form action="/loans/apply" method="POST" hx-post="/loans/apply" hx-target="#main-content">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div class="mb-4">
+              <h5 class="fw-bold text-dark border-bottom pb-2">1. Paramètres de l'Emprunt</h5>
+              <div class="row g-3 mt-1">
+                <div class="col-12 col-md-6">
+                  <label for="productId" class="form-label fw-semibold">Produit de crédit</label>
+                  <select class="form-select" id="productId" name="productId" required>
+                    <% products.forEach(function(p) { %>
+                      <option value="<%= p.id %>">
+                        <%= p.name %> (Taux: <%= Number(p.interestRate) %>%, Montant: <%= Number(p.minAmount) %> € - <%= Number(p.maxAmount) %> €)
+                      </option>
+                    <% }); %>
+                  </select>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="accountId" class="form-label fw-semibold">Compte de déblocage & prélèvement</label>
+                  <select class="form-select" id="accountId" name="accountId" required>
+                    <% accounts.forEach(function(acc) { %>
+                      <option value="<%= acc.id %>">
+                        <%= acc.accountNumber %> (<%= acc.accountType %>) - Solde: <%= Number(acc.balance).toFixed(2) %> €
+                      </option>
+                    <% }); %>
+                  </select>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="amountRequested" class="form-label fw-semibold">Montant demandé (€)</label>
+                  <div class="input-group">
+                    <input type="number" step="50" min="50" class="form-control" id="amountRequested" name="amountRequested" placeholder="Ex: 3000" required>
+                    <span class="input-group-text bg-white">EUR (€)</span>
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="durationMonths" class="form-label fw-semibold">Durée souhaitée (Mois)</label>
+                  <input type="number" min="1" max="120" class="form-control" id="durationMonths" name="durationMonths" placeholder="Ex: 12" required>
+                </div>
+
+                <div class="col-12">
+                  <label for="purpose" class="form-label fw-semibold">Objet / Motif du prêt</label>
+                  <input type="text" class="form-control" id="purpose" name="purpose" placeholder="Ex: Achat stock commerce, équipement atelier, besoin trésorerie..." required>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <h5 class="fw-bold text-dark border-bottom pb-2">2. Garantie / Caution (Optionnel)</h5>
+              <div class="row g-3 mt-1">
+                <div class="col-12 col-md-6">
+                  <label for="guaranteeType" class="form-label fw-semibold">Type de garantie</label>
+                  <select class="form-select" id="guaranteeType" name="guaranteeType">
+                    <option value="">Aucune garantie matérielle</option>
+                    <option value="collateral_asset">Garantie matérielle (Équipement, véhicule, foncier)</option>
+                    <option value="salary">Nantissement sur salaire / revenus</option>
+                    <option value="personal_guarantor">Caution personnelle / Solidaire</option>
+                  </select>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="guaranteeValue" class="form-label fw-semibold">Valeur estimée (€)</label>
+                  <input type="number" step="50" min="0" class="form-control" id="guaranteeValue" name="guaranteeValue" placeholder="Ex: 5000">
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="guarantorName" class="form-label fw-semibold">Nom du garant / caution</label>
+                  <input type="text" class="form-control" id="guarantorName" name="guarantorName" placeholder="Nom et prénom">
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label for="guarantorPhone" class="form-label fw-semibold">Téléphone du garant</label>
+                  <input type="tel" class="form-control" id="guarantorPhone" name="guarantorPhone" placeholder="+33 6 00 00 00 00">
+                </div>
+
+                <div class="col-12">
+                  <label for="guaranteeDescription" class="form-label fw-semibold">Description de la garantie</label>
+                  <input type="text" class="form-control" id="guaranteeDescription" name="guaranteeDescription" placeholder="Ex: Véhicule immatriculé AA-123-BB">
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+              <a href="/loans" hx-get="/loans" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary">Annuler</a>
+              <button type="submit" class="btn btn-primary bg-bank-primary border-0 px-4">
+                <i class="fa-solid fa-paper-plane me-1"></i> Soumettre la demande
+              </button>
+            </div>
+          </form>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

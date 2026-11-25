@@ -1,0 +1,151 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold text-dark mb-1">Configuration des Produits de Crédit</h2>
+    <p class="text-muted mb-0">Définissez les offres de prêt, les grilles de taux et les règles d'amortissement.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/loans" hx-get="/loans" hx-target="#main-content" hx-push-url="true" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-arrow-left me-1"></i> Retour aux dossiers
+    </a>
+    <button type="button" class="btn btn-primary bg-bank-primary border-0 btn-sm" data-bs-toggle="modal" data-bs-target="#newProductModal">
+      <i class="fa-solid fa-plus me-1"></i> Nouveau Produit
+    </button>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle data-table w-100">
+        <thead class="table-light">
+          <tr>
+            <th>Nom du produit</th>
+            <th>Type d'amortissement</th>
+            <th>Taux Annuel</th>
+            <th>Montants autorisés</th>
+            <th>Durées autorisées</th>
+            <th>Pénalité / jour</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (products && products.length > 0) { %>
+            <% products.forEach(function(p) { %>
+              <tr>
+                <td>
+                  <div class="fw-bold text-dark"><%= p.name %></div>
+                  <% if (p.description) { %>
+                    <small class="text-muted"><%= p.description %></small>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (p.interestMethod === 'declining_balance') { %>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                      <i class="fa-solid fa-chart-line me-1"></i> Dégressif (Annuités constantes)
+                    </span>
+                  <% } else { %>
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                      <i class="fa-solid fa-arrows-split-up-and-left me-1"></i> Linéaire (Flat)
+                    </span>
+                  <% } %>
+                </td>
+                <td class="fw-bold text-primary"><%= Number(p.interestRate).toFixed(2) %>%</td>
+                <td><%= Number(p.minAmount).toFixed(2) %> € - <%= Number(p.maxAmount).toFixed(2) %> €</td>
+                <td><%= p.minDurationMonths %> - <%= p.maxDurationMonths %> mois</td>
+                <td><%= Number(p.penaltyRateDaily || 0).toFixed(2) %>%</td>
+                <td>
+                  <span class="badge bg-success">Actif</span>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="7" class="text-center text-muted py-4">
+                <i class="fa-solid fa-folder-open fa-2x mb-2 d-block text-secondary"></i>
+                Aucun produit de crédit configuré pour le moment.
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nouveau Produit -->
+<div class="modal fade" id="newProductModal" tabindex="-1" aria-labelledby="newProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="newProductModalLabel">
+          <i class="fa-solid fa-sliders me-2 text-primary"></i>Créer un Produit de Crédit
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <form action="/loans/products" method="POST" hx-post="/loans/products" hx-target="#main-content" hx-push-url="true">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Nom du produit <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control" placeholder="ex: Micro-Crédit Express" required minlength="2" maxlength="100">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Méthode d'amortissement <span class="text-danger">*</span></label>
+              <select name="interestMethod" class="form-select" required>
+                <option value="declining_balance" selected>Amortissement dégressif (Annuités constantes)</option>
+                <option value="flat">Amortissement linéaire (Flat - Taux fixe)</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Description</label>
+              <input type="text" name="description" class="form-control" placeholder="ex: Prêt à court terme pour commerçants et petits entrepreneurs">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Taux d'intérêt annuel (%) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <input type="number" step="0.01" min="0.1" max="100" name="interestRate" class="form-control" placeholder="ex: 12.00" required>
+                <span class="input-group-text">%</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Montant minimum (€) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <input type="number" step="0.01" min="10" name="minAmount" class="form-control" placeholder="ex: 200" required>
+                <span class="input-group-text">€</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Montant maximum (€) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <input type="number" step="0.01" min="50" name="maxAmount" class="form-control" placeholder="ex: 5000" required>
+                <span class="input-group-text">€</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Durée minimum (mois) <span class="text-danger">*</span></label>
+              <input type="number" min="1" max="120" name="minDurationMonths" class="form-control" value="3" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Durée maximum (mois) <span class="text-danger">*</span></label>
+              <input type="number" min="1" max="120" name="maxDurationMonths" class="form-control" value="24" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Pénalité journalière (%)</label>
+              <div class="input-group">
+                <input type="number" step="0.01" min="0" max="10" name="penaltyRateDaily" class="form-control" value="0.05">
+                <span class="input-group-text">%/j</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-primary bg-bank-primary border-0">
+            <i class="fa-solid fa-check me-1"></i> Enregistrer le Produit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

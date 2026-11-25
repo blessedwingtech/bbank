@@ -15,6 +15,9 @@ import { FeeModule } from './modules/fee/fee.module';
 import { StatementModule } from './modules/statement/statement.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { SystemSettingModule } from './modules/system-setting/system-setting.module';
+import { LoanModule } from './modules/loan/loan.module';
+import { CooperativeModule } from './modules/cooperative/cooperative.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -43,6 +46,7 @@ import { AuditLogMiddleware } from './common/middleware/audit-log.middleware';
       ],
     }),
     PrismaModule,
+    SystemSettingModule,
     AuthModule,
     UserModule,
     AccountModule,
@@ -52,6 +56,8 @@ import { AuditLogMiddleware } from './common/middleware/audit-log.middleware';
     StatementModule,
     AuditLogModule,
     DashboardModule,
+    LoanModule,
+    CooperativeModule,
   ],
   controllers: [AppController],
   providers: [

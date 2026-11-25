@@ -1,0 +1,108 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fw-bold text-dark mb-1">Paramètres du Progiciel & Modules</h2>
+    <p class="text-muted mb-0">Activez ou désactivez les services à la carte selon votre type d'établissement.</p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <form action="/settings" method="POST" hx-post="/settings" hx-target="#main-content">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="mb-4">
+            <h5 class="fw-bold text-dark border-bottom pb-2">1. Identité de l'Établissement</h5>
+            <div class="row g-3 mt-1">
+              <div class="col-12 col-md-8">
+                <label for="institutionName" class="form-label fw-semibold">Nom de l'institution</label>
+                <input type="text" class="form-control" id="institutionName" name="institutionName" value="<%= settings.institutionName %>" required>
+              </div>
+              <div class="col-12 col-md-4">
+                <label for="defaultCurrency" class="form-label fw-semibold">Devise principale</label>
+                <input type="text" class="form-control text-uppercase" id="defaultCurrency" name="defaultCurrency" value="<%= settings.defaultCurrency %>" required maxlength="10">
+              </div>
+              <div class="col-12">
+                <label for="institutionType" class="form-label fw-semibold">Modèle Institutionnel</label>
+                <select class="form-select" id="institutionType" name="institutionType">
+                  <option value="bank" <%= settings.institutionType === 'bank' ? 'selected' : '' %>>Banque Commerciale / Finance de détail</option>
+                  <option value="microfinance" <%= settings.institutionType === 'microfinance' ? 'selected' : '' %>>Institution de Micro-Finance (IMF)</option>
+                  <option value="cooperative" <%= settings.institutionType === 'cooperative' ? 'selected' : '' %>>Coopérative d'Épargne et de Crédit (COOPEC)</option>
+                  <option value="mutuelle" <%= settings.institutionType === 'mutuelle' ? 'selected' : '' %>>Mutuelle de Solidarité & Tontines</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <h5 class="fw-bold text-dark border-bottom pb-2">2. Activation des Modules Métier (À la carte)</h5>
+            <div class="list-group list-group-flush mt-2">
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                <div>
+                  <div class="fw-bold text-dark">Opérations Bancaires Standard</div>
+                  <div class="small text-muted">Comptes courants/épargne, dépôts, retraits de caisse et virements interbancaires.</div>
+                </div>
+                <div class="form-check form-switch fs-4">
+                  <input class="form-check-input" type="checkbox" name="enableStandardBank" value="true" <%= settings.enableStandardBank ? 'checked' : '' %>>
+                </div>
+              </div>
+
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                <div>
+                  <div class="fw-bold text-dark">Module Micro-Crédit & Prêts</div>
+                  <div class="small text-muted">Produits de prêt, simulation d'amortissement, dossiers de crédit, déblocages et échéanciers.</div>
+                </div>
+                <div class="form-check form-switch fs-4">
+                  <input class="form-check-input" type="checkbox" name="enableMicrocredit" value="true" <%= settings.enableMicrocredit ? 'checked' : '' %>>
+                </div>
+              </div>
+
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                <div>
+                  <div class="fw-bold text-dark">Module Coopérative & Parts Sociales</div>
+                  <div class="small text-muted">Souscription de parts sociales par les sociétaires, assemblée et capitalisation coopérative.</div>
+                </div>
+                <div class="form-check form-switch fs-4">
+                  <input class="form-check-input" type="checkbox" name="enableCooperative" value="true" <%= settings.enableCooperative ? 'checked' : '' %>>
+                </div>
+              </div>
+
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+                <div>
+                  <div class="fw-bold text-dark">Module Tontines & Épargne Rotative</div>
+                  <div class="small text-muted">Cycles d'épargne collective par tirage ou rotation mensuelle entre adhérents.</div>
+                </div>
+                <div class="form-check form-switch fs-4">
+                  <input class="form-check-input" type="checkbox" name="enableTontine" value="true" <%= settings.enableTontine ? 'checked' : '' %>>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <h5 class="fw-bold text-dark border-bottom pb-2">3. Plafonds & Sécurité Renforcée</h5>
+            <div class="row g-3 mt-1">
+              <div class="col-12 col-md-6">
+                <label for="maxDailyTransferLimit" class="form-label fw-semibold">Plafond quotidien max virement (€)</label>
+                <input type="number" step="0.01" min="1" class="form-control" id="maxDailyTransferLimit" name="maxDailyTransferLimit" value="<%= Number(settings.maxDailyTransferLimit) %>" required>
+              </div>
+              <div class="col-12 col-md-6 d-flex align-items-center">
+                <div class="form-check form-switch mt-3">
+                  <input class="form-check-input" type="checkbox" name="enable2FAForTransfers" id="enable2FA" value="true" <%= settings.enable2FAForTransfers ? 'checked' : '' %>>
+                  <label class="form-check-label fw-semibold ms-2" for="enable2FA">Exiger un OTP pour les virements externes</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-top d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary bg-bank-primary border-0 px-4">
+              <i class="fa-solid fa-save me-1"></i> Enregistrer les paramètres
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
